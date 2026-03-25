@@ -5,9 +5,10 @@ import 'package:meals_app/widgets/meal_card_row_icon.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class MealsCard extends StatelessWidget {
-  const MealsCard({super.key, required this.meal});
+  const MealsCard({super.key, required this.meal, required this.onSelectmeal});
 
   final Meal meal;
+   final void Function(Meal meal) onSelectmeal;
 
   // String get complexityText {
   //   return meal.complexity.name[0].toUpperCase() +
@@ -21,7 +22,7 @@ class MealsCard extends StatelessWidget {
   void _handleNavigateMealDetail(BuildContext context, Meal meal) {
     Navigator.of(
       context,
-    ).push(MaterialPageRoute(builder: (ctx) => MealDetailScreen(meal: meal)));
+    ).push(MaterialPageRoute(builder: (ctx) => MealDetailScreen(meal: meal, onSelectmeal: onSelectmeal,)));
   }
 
   @override

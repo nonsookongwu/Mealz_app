@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:meals_app/main.dart';
 import 'package:meals_app/models/meals.dart';
 import 'package:meals_app/widgets/meals_card.dart';
 
 class MealsWidget extends StatelessWidget {
-  const MealsWidget({super.key, required this.title, required this.meals});
+  const MealsWidget({super.key, this.title, required this.meals, required this.onSelectmeal});
 
-  final String title;
+  final String? title;
   final List<Meal> meals;
+  final void Function(Meal meal) onSelectmeal;
 
   @override
   Widget build(BuildContext context) {
     Widget content = ListView.builder(
       itemCount: meals.length,
-      itemBuilder: (context, index) => MealsCard(meal: meals[index]),
+      itemBuilder: (context, index) => MealsCard(meal: meals[index], onSelectmeal: onSelectmeal,),
     );
 
     if (meals.isEmpty) {
@@ -39,8 +39,10 @@ class MealsWidget extends StatelessWidget {
       );
     }
 
+    if (title == null) return content;
+
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(title: Text(title!)),
       body: content,
     );
   }

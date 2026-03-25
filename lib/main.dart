@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
+import 'package:meals_app/screen_widgets/tab_screen.dart';
 
 import 'screen_widgets/Categories.dart';
 
@@ -26,7 +27,8 @@ class App extends StatelessWidget {
     return MaterialApp(
       theme: theme,
       // home: MealsWidget(meals: dummyMeals, title: "Quick and easy",)
-      home: Categories()
+      home: TabScreen()
+      // home: Categories()
     );
   }
 }
