@@ -106,7 +106,8 @@ const dummyMeals = [
     isGlutenFree: false,
     isVegan: false,
     isVegetarian: false,
-    isLactoseFree: true,
+    isLactoseFree: false,
+    // isLactoseFree: true,
   ),
   Meal(
     id: 'm4',

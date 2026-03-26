@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:meals_app/models/meals.dart';
 import 'package:meals_app/screen_widgets/categories.dart';
+import 'package:meals_app/screen_widgets/filters_screen.dart';
 import 'package:meals_app/screen_widgets/meals_widget.dart';
+import 'package:meals_app/widgets/main_drawer.dart';
+
+const kInitialFilterResult = {
+  Filter.glutenFree: false,
+  Filter.lactoseFree: false,
+  Filter.vegan: false,
+  Filter.vegeterian: false,
+};
 
 class TabScreen extends StatefulWidget {
   const TabScreen({super.key});
@@ -15,6 +24,7 @@ class TabScreen extends StatefulWidget {
 class _TabScreenState extends State<TabScreen> {
   int _currentScreenIndex = 0;
   final List<Meal> favouriteMeals = [];
+  late Map<Filter, bool> filterResult = kInitialFilterResult;
 
   void _handleSwitchScreen(int index) {
     setState(() {
@@ -23,7 +33,6 @@ class _TabScreenState extends State<TabScreen> {
   }
 
   void _showSnackBar(Meal meal, int index) {
-    
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -54,10 +63,27 @@ class _TabScreenState extends State<TabScreen> {
     });
   }
 
+  void handleSetScreen(String identifier) async {
+    Navigator.of(context).pop();
+    if (identifier == "filters") {
+      final result = await Navigator.of(context).push<Map<Filter, bool>>(
+        MaterialPageRoute(builder: (ctx) => FiltersScreen(initialFilterState: filterResult,)),
+      );
+      // print("result is $result");
+      // print("initial result is $initialFilterResult");
+      setState(() {
+        filterResult = result ?? kInitialFilterResult;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // print(favouriteMeals);
-    Widget currentContent = Categories(onSelectmeal: handleFavoriteMeals);
+    // print("filtered result is $filterResult");
+    Widget currentContent = Categories(
+      onSelectmeal: handleFavoriteMeals,
+      filterResult: filterResult,
+    );
     String currentTitle = "Pick your category";
 
     if (_currentScreenIndex == 1) {
@@ -70,6 +96,7 @@ class _TabScreenState extends State<TabScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(currentTitle)),
+      drawer: MainDrawer(onSetScreen: handleSetScreen),
       body: currentContent,
       bottomNavigationBar: BottomNavigationBar(
         onTap: _handleSwitchScreen,
