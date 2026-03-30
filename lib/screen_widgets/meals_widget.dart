@@ -3,17 +3,16 @@ import 'package:meals_app/models/meals.dart';
 import 'package:meals_app/widgets/meals_card.dart';
 
 class MealsWidget extends StatelessWidget {
-  const MealsWidget({super.key, this.title, required this.meals, required this.onSelectmeal});
+  const MealsWidget({super.key, this.title, required this.meals});
 
   final String? title;
   final List<Meal> meals;
-  final void Function(Meal meal) onSelectmeal;
 
   @override
   Widget build(BuildContext context) {
     Widget content = ListView.builder(
       itemCount: meals.length,
-      itemBuilder: (context, index) => MealsCard(meal: meals[index], onSelectmeal: onSelectmeal,),
+      itemBuilder: (context, index) => MealsCard(meal: meals[index]),
     );
 
     if (meals.isEmpty) {

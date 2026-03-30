@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:meals_app/models/meals.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:meals_app/models/meals.dart';
+import 'package:meals_app/provider/favourites_provider.dart';
+import 'package:meals_app/provider/filters_provider.dart';
 import 'package:meals_app/screen_widgets/categories.dart';
 import 'package:meals_app/screen_widgets/filters_screen.dart';
 import 'package:meals_app/screen_widgets/meals_widget.dart';
@@ -12,19 +15,17 @@ const kInitialFilterResult = {
   Filter.vegeterian: false,
 };
 
-class TabScreen extends StatefulWidget {
+class TabScreen extends ConsumerStatefulWidget {
   const TabScreen({super.key});
 
   @override
-  State<TabScreen> createState() {
+  ConsumerState<TabScreen> createState() {
     return _TabScreenState();
   }
 }
 
-class _TabScreenState extends State<TabScreen> {
+class _TabScreenState extends ConsumerState<TabScreen> {
   int _currentScreenIndex = 0;
-  final List<Meal> favouriteMeals = [];
-  late Map<Filter, bool> filterResult = kInitialFilterResult;
 
   void _handleSwitchScreen(int index) {
     setState(() {
@@ -32,64 +33,62 @@ class _TabScreenState extends State<TabScreen> {
     });
   }
 
-  void _showSnackBar(Meal meal, int index) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Meal has been removed from favourite"),
-        duration: Duration(seconds: 5),
-        action: SnackBarAction(
-          label: "undo",
-          onPressed: () {
-            setState(() {
-              favouriteMeals.insert(index, meal);
-            });
-          },
-        ),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
+  // void _showSnackBar(Meal meal, int index, String message) {
+  //   ScaffoldMessenger.of(context).clearSnackBars();
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text("Meal $message favourite"),
+  //       duration: Duration(seconds: 5),
+  //       // action: SnackBarAction(
+  //       //   label: "undo",
+  //       //   onPressed: () {
+  //       //     setState(() {
+  //       //       favouriteMeals.insert(index, meal);
+  //       //     });
+  //       //   },
+  //       // ),
+  //       behavior: SnackBarBehavior.floating,
+  //     ),
+  //   );
+  // }
 
-  void handleFavoriteMeals(Meal meal) {
-    final currentindex = favouriteMeals.indexOf(meal);
-    setState(() {
-      if (favouriteMeals.contains(meal)) {
-        favouriteMeals.remove(meal);
-        _showSnackBar(meal, currentindex);
-      } else {
-        favouriteMeals.add(meal);
-      }
-    });
-  }
+  // void handleFavoriteMeals(Meal meal) {
+  //   final currentindex = favouriteMeals.indexOf(meal);
+  //   setState(() {
+  //     if (favouriteMeals.contains(meal)) {
+  //       favouriteMeals.remove(meal);
+  //       _showSnackBar(meal, currentindex, "removed from");
+  //     } else {
+  //       favouriteMeals.add(meal);
+  //       _showSnackBar(meal, currentindex, "added to");
+  //     }
+  //   });
+  // }
 
   void handleSetScreen(String identifier) async {
     Navigator.of(context).pop();
     if (identifier == "filters") {
-      final result = await Navigator.of(context).push<Map<Filter, bool>>(
-        MaterialPageRoute(builder: (ctx) => FiltersScreen(initialFilterState: filterResult,)),
+      await Navigator.of(context).push<Map<Filter, bool>>(
+        MaterialPageRoute(
+          builder: (ctx) => FiltersScreen(),
+        ),
       );
-      // print("result is $result");
-      // print("initial result is $initialFilterResult");
-      setState(() {
-        filterResult = result ?? kInitialFilterResult;
-      });
+      // setState(() {
+      //   filterResult = result ?? kInitialFilterResult;
+      // });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     // print("filtered result is $filterResult");
-    Widget currentContent = Categories(
-      onSelectmeal: handleFavoriteMeals,
-      filterResult: filterResult,
-    );
+    Widget currentContent = Categories();
     String currentTitle = "Pick your category";
 
     if (_currentScreenIndex == 1) {
+      final favouriteMeals = ref.watch(favouriteMealsProvider);
       currentContent = MealsWidget(
         meals: favouriteMeals,
-        onSelectmeal: handleFavoriteMeals,
       );
       currentTitle = "Your Favourites";
     }

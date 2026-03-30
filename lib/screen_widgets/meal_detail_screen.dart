@@ -1,27 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meals_app/models/meals.dart';
+import 'package:meals_app/provider/favourites_provider.dart';
 
-class MealDetailScreen extends StatelessWidget {
-  const MealDetailScreen({
-    super.key,
-    required this.meal,
-    required this.onSelectmeal,
-  });
+class MealDetailScreen extends ConsumerWidget {
+  const MealDetailScreen({super.key, required this.meal});
 
   final Meal meal;
-  final void Function(Meal meal) onSelectmeal;
+
+  void _showSnackBar(Meal meal, BuildContext context, String message) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Meal $message favourite"),
+        duration: Duration(seconds: 5),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favouriteMeals = ref.watch(favouriteMealsProvider);
+    final isFavourite = favouriteMeals.contains(meal);
+    Color favoriteButtonColor = isFavourite
+        ? Theme.of(context).colorScheme.onPrimaryContainer
+        : Theme.of(context).colorScheme.onPrimary;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(meal.title),
         actions: [
           IconButton(
-            onPressed: () => onSelectmeal(meal),
+            onPressed: () {
+              final wasAdded = ref
+                  .read(favouriteMealsProvider.notifier)
+                  .toggleFavouriteMealsStatus(meal);
+              _showSnackBar(
+                meal,
+                context,
+                wasAdded ? "added to" : "removed from",
+              );
+            },
             icon: Icon(
-              Icons.star,
-              color: Theme.of(context).colorScheme.onSecondary,
+              isFavourite ? Icons.star : Icons.star_border,
+              color: favoriteButtonColor,
+              // color: Theme.of(context).colorScheme.onPrimaryContainer,
             ),
           ),
         ],

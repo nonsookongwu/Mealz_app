@@ -1,40 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meals_app/data/dummy_data.dart';
 import 'package:meals_app/models/category.dart';
-import 'package:meals_app/models/meals.dart';
-import 'package:meals_app/screen_widgets/filters_screen.dart';
+import 'package:meals_app/provider/filters_provider.dart';
+import 'package:meals_app/provider/meals_provider.dart';
 import 'package:meals_app/screen_widgets/meals_widget.dart';
 import 'package:meals_app/widgets/category_item.dart';
 
-class Categories extends StatelessWidget {
-  const Categories({
-    super.key,
-    required this.onSelectmeal,
-    required this.filterResult,
-  });
+class Categories extends ConsumerWidget {
+  const Categories({super.key});
 
-  final void Function(Meal meal) onSelectmeal;
-  final Map<Filter, bool> filterResult;
+  // final Map<Filter, bool> filterResult;
 
-  void _handleNavigateMeals(BuildContext context, Category category) {
-    final filteredMeals = dummyMeals.where((meal) {
-      if (filterResult[Filter.glutenFree]! && !meal.isGlutenFree) {
-        return false;
-      }
-      if (filterResult[Filter.lactoseFree]! && !meal.isLactoseFree) {
-        return false;
-      }
-      if (filterResult[Filter.vegan]! && !meal.isVegan) {
-        return false;
-      }
-      if (filterResult[Filter.vegeterian]! && !meal.isVegetarian) {
-        return false;
-      }
-      return true;
-    }).toList();
-
-    // print("filteredResult is $filterResult");
-    // print("filteredMeal is $filteredMeals");
+  void _handleNavigateMeals(
+    BuildContext context,
+    Category category,
+    WidgetRef ref,
+  ) {
+    final filteredMeals = ref.watch(filteredMealsProvider);
 
     final availableMeal = filteredMeals
         .where((meal) => meal.categories.contains(category.id))
@@ -43,17 +26,14 @@ class Categories extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (ctx) => MealsWidget(
-          meals: availableMeal,
-          title: category.title,
-          onSelectmeal: onSelectmeal,
-        ),
+        builder: (ctx) =>
+            MealsWidget(meals: availableMeal, title: category.title),
       ),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: GridView(
@@ -67,7 +47,8 @@ class Categories extends StatelessWidget {
           ...availableCategories.map(
             (category) => CategoryItem(
               category: category,
-              onSelectCategory: () => _handleNavigateMeals(context, category),
+              onSelectCategory: () =>
+                  _handleNavigateMeals(context, category, ref),
             ),
           ),
         ],
