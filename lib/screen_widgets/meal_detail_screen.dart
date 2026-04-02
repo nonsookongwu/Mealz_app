@@ -42,10 +42,17 @@ class MealDetailScreen extends ConsumerWidget {
                 wasAdded ? "added to" : "removed from",
               );
             },
-            icon: Icon(
-              isFavourite ? Icons.star : Icons.star_border,
-              color: favoriteButtonColor,
-              // color: Theme.of(context).colorScheme.onPrimaryContainer,
+            icon: AnimatedSwitcher(
+              duration: Duration(milliseconds: 300),
+              transitionBuilder: (widget, animation) {
+                // return RotationTransition(turns: animation, child: widget);
+                
+                return ScaleTransition(scale: animation, child: widget);
+              },
+              child: Icon(
+                isFavourite ? Icons.star : Icons.star_border,
+                color: favoriteButtonColor, key: ValueKey(isFavourite),
+              ),
             ),
           ),
         ],
@@ -56,11 +63,14 @@ class MealDetailScreen extends ConsumerWidget {
           child: Column(
             spacing: 10,
             children: [
-              Image.network(
-                meal.imageUrl,
-                fit: BoxFit.cover,
-                height: 300,
-                width: double.infinity,
+              Hero(
+                tag: meal.id,
+                child: Image.network(
+                  meal.imageUrl,
+                  fit: BoxFit.cover,
+                  height: 300,
+                  width: double.infinity,
+                ),
               ),
               // SizedBox(height: 20),
               Text(
